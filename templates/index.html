@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Transcription</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Your Audio File</h1>
+        <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+            <label for="file">Choose an audio file</label>
+            <input type="file" name="file" id="file" accept="audio/*">
+            <input type="submit" value="Upload and Transcribe" disabled id="submit-button">
+            <p>Please upload audio files in .mp3, .wav format.</p>
+
+            <!-- Progress bar -->
+            <div id="progress-container">
+                <div id="progress-bar"></div>
+            </div>
+
+            <!-- Transcription status message -->
+            <p id="status-message" style="display: none;">
+                We are trying hard transcribing your audio.<br>The longer the audio, the more time it will take.
+            </p>
+
+            <!-- Download button (hidden initially) -->
+            <button id="download-button" class="big-download-button" style="display: none;">Download Transcription</button>
+        </form>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file');
+        const submitButton = document.getElementById('submit-button');
+        const progressBar = document.getElementById('progress-bar');
+        const statusMessage = document.getElementById('status-message');
+        const progressContainer = document.getElementById('progress-container');
+        const downloadButton = document.getElementById('download-button');
+
+        let progress = 0;
+        let maxProgress = 99;  // This is the max before it waits for the backend
+        let progressInterval;
+
+        // Enable the submit button when a file is selected
+        fileInput.addEventListener('change', function() {
+            if (fileInput.files.length > 0) {
+                submitButton.disabled = false;
+            } else {
+                submitButton.disabled = true;
+            }
+        });
+
+        // Simulate progress bar and status updates when the form is submitted
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitButton.disabled = true; // Disable submit button
+            progressContainer.style.display = 'block'; // Show progress bar
+            statusMessage.style.display = 'block'; // Show the transcription status message
+
+            // Start progress bar simulation immediately
+            simulateProgress();
+
+            // Start real form submission and fetch the size of the file
+            const formData = new FormData(this);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                clearInterval(progressInterval); // Stop progress simulation
+
+                // Complete the progress bar and show the download button
+                finishProgress();
+            })
+            .catch(error => {
+                statusMessage.textContent = 'Error transcribing your file';
+                statusMessage.style.color = 'red';
+            });
+        });
+
+        // Simulate slow progress based on file size
+        function simulateProgress() {
+            const progressSpeed = 200; // Speed of progress bar (in milliseconds)
+
+            progressInterval = setInterval(() => {
+                if (progress < maxProgress) {
+                    progress += 1;
+                    progressBar.style.width = progress + '%';
+                }
+            }, progressSpeed);
+        }
+
+        // Complete the progress bar and display the download button
+        function finishProgress() {
+            progressBar.style.width = '100%';
+
+            setTimeout(() => {
+                // Hide the status message
+                statusMessage.style.display = 'none';
+
+                // Reset the progress bar to 0%
+                progressBar.style.width = '0%';
+
+                // Show the download button
+                downloadButton.style.display = 'block';
+                
+                // Set up click listener to download file and delete it
+                downloadButton.addEventListener('click', function() {
+                    // Hide the status message when the download button is clicked
+                    statusMessage.style.display = 'none';
+
+                    fetch('/download')
+                        .then(response => {
+                            if (response.ok) {
+                                return response.blob();
+                            } else {
+                                throw new Error('Error downloading transcription file');
+                            }
+                        })
+                        .then(blob => {
+                            const downloadUrl = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = downloadUrl;
+                            a.download = 'transcribe.txt';
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+                            
+                            // Remove the download button after downloading
+                            downloadButton.style.display = 'none';
+                        })
+                        .catch(error => {
+                            statusMessage.textContent = 'Error downloading file';
+                            statusMessage.style.color = 'red';
+                        });
+                });
+            }, 1000); // Wait 1 second before resetting progress bar and showing download button
+        }
+    </script>
+</body>
+</html>
