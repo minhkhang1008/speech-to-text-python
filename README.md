@@ -3,7 +3,7 @@
 
 I am trying to publish it online somewhere [I haven't published it anywhere]
 
-You can clone this repository and run it locally now!
+You can clone or download this repository and run it locally now! (Download all files)
 
 ## Installation
 - You will need Python to run
