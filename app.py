@@ -14,19 +14,26 @@ if not os.path.exists(UPLOAD_FOLDER):
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Function to delete transcribe.txt after 10 minutes if not downloaded
-def delete_transcribe_after_delay():
-    time.sleep(600)  # Sleep for 600 seconds (10 minutes)
+# Function to delete the transcription file after 5 minutes
+def delete_transcription_after_delay():
+    time.sleep(300)  # Sleep for 300 seconds (5 minutes)
     if os.path.exists("transcribe.txt"):
         try:
             os.remove("transcribe.txt")
-            print("transcribe.txt deleted after 10 minutes of inactivity")
+            print("transcribe.txt deleted after 5 minutes of inactivity")
         except Exception as e:
             print(f"Error deleting transcribe.txt: {e}")
 
-def transcribe_audio(file_path):
+# Function to convert MP4 to WAV
+def convert_mp4_to_wav(mp4_file_path, output_wav_path):
+    audio = AudioSegment.from_file(mp4_file_path, format="mp4")
+    audio.export(output_wav_path, format="wav")
+    return output_wav_path
+
+# Function to transcribe audio from a WAV file
+def transcribe_audio(wav_file_path):
     recognizer = sr.Recognizer()
-    audio = AudioSegment.from_file(file_path)
+    audio = AudioSegment.from_file(wav_file_path)
     chunks = [audio[i:i + 60000] for i in range(0, len(audio), 60000)]  # 60s chunks
 
     full_transcription = []
@@ -49,9 +56,9 @@ def transcribe_audio(file_path):
     transcription_file = "transcribe.txt"
     with open(transcription_file, "w") as f:
         f.write(" ".join(full_transcription))
-    
-    # Schedule deletion of transcribe.txt after 10 minutes if not downloaded
-    threading.Thread(target=delete_transcribe_after_delay).start()
+
+    # Schedule deletion of transcribe.txt after 5 minutes
+    threading.Thread(target=delete_transcription_after_delay).start()
 
     return transcription_file
 
@@ -77,20 +84,25 @@ def upload_file():
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
         file.save(file_path)
 
-        # Get the size of the file in MB (rounded up)
-        file_size_mb = os.path.getsize(file_path) / (1024 * 1024)
-        file_size_mb_rounded = round(file_size_mb)
+        # Convert MP4 to WAV if necessary
+        if file.filename.endswith('.mp4'):
+            wav_file_path = file_path.replace('.mp4', '.wav')
+            convert_mp4_to_wav(file_path, wav_file_path)
+            print(f"MP4 file converted to WAV: {wav_file_path}")
+        else:
+            wav_file_path = file_path  # Use the uploaded file directly if it's not MP4
 
         # Transcribe the file
-        transcription_file = transcribe_audio(file_path)
+        transcription_file = transcribe_audio(wav_file_path)
 
-        # Delete the uploaded audio file after transcription
+        # Delete the uploaded audio/video file and converted WAV files (if any) after transcription
         os.remove(file_path)
+        if file.filename.endswith('.mp4'):
+            os.remove(wav_file_path)
 
-        # Return the file size along with the transcription file path
+        # Return success response
         return jsonify({
-            'transcription': transcription_file,
-            'file_size_mb': file_size_mb_rounded
+            'transcription': transcription_file
         }), 200
 
     except Exception as e:
