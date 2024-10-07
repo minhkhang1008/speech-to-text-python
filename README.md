@@ -1,7 +1,9 @@
+
 # Free Speech to Text using Python
 
-I am trying to publish it online through Heroku
-You can clone this respiratory and run it locally
+I am trying to publish it online somewhere [I haven't published it anywhere]
+
+You can clone this repository and run it locally now!
 
 ## Installation
 - You will need Python to run
@@ -9,44 +11,52 @@ You can clone this respiratory and run it locally
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install libraries.
 
 ```bash
-pip install SpeechRecognition
-pip install pydub
-pip install flask
+pip install -r requirements.txt
 ```
 
 ## Usage
-1. Create virtual environment
+1. Create a virtual environment
+
    ```bash
-   cd <The directory of where you place this respiratory in>
+   cd <The directory where you placed this repository>
    python -m venv venv
-```
+   ```
+
 2. Activate the virtual environment
-- Windows:
+   - Windows:
 
-```bash
+   ```bash
    venv\Scripts\activate
-```
+   ```
 
-- MacOS/Linus:
+   - MacOS/Linux:
+
    ```bash
    source venv/bin/activate
-```
-3. Install all libraries above using pip inside the virtual environment
-4. Run the application
+   ```
+
+3. Install all libraries using pip inside the virtual environment:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Run the application:
+
    ```bash
    python app.py
-```
-5. Go to your browser and type in
-      ```bash
+   ```
+
+5. Go to your browser and type in:
+
+   ```bash
    http://127.0.0.1:5000/
-```
-## Contributing
+   ```
 
-Pull requests are welcome. For major changes, please open an issue first
-to discuss what you would like to change.
+   **Note**: If you re-activate the virtual environment, reload or use another browser if you have trouble accessing the localhost.
 
-Please make sure to update tests as appropriate.
-
-## License
-
-[MIT](https://choosealicense.com/licenses/mit/)
+## Features
+- 100% free transcribing
+- Supports mp3, mp4, wav formats
+- Ad-free
+- Run entirely based on Python
