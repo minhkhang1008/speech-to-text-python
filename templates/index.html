@@ -83,7 +83,7 @@
 
         // Simulate slow progress based on file size
         function simulateProgress() {
-            const progressSpeed = 200; // Speed of progress bar (in milliseconds)
+            const progressSpeed = 260; // Slower speed by 30%
 
             progressInterval = setInterval(() => {
                 if (progress < maxProgress) {
@@ -107,7 +107,7 @@
                 // Show the download button
                 downloadButton.style.display = 'block';
                 
-                // Set up click listener to download file and delete it
+                // Set up click listener to download file and reload the page after download
                 downloadButton.addEventListener('click', function() {
                     // Hide the status message when the download button is clicked
                     statusMessage.style.display = 'none';
@@ -131,6 +131,11 @@
                             
                             // Remove the download button after downloading
                             downloadButton.style.display = 'none';
+
+                            // Reload the page after a short delay (allow time for download to start)
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1000); // 1-second delay before reloading
                         })
                         .catch(error => {
                             statusMessage.textContent = 'Error downloading file';
