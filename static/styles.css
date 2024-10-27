@@ -50,7 +50,7 @@ label {
     border-radius: 5px;
     cursor: pointer;
     font-size: 1rem;
-    transition: background-color 0.3s;
+    transition: background-color 0.2s;
     margin-bottom: 15px;
 }
 
@@ -73,7 +73,7 @@ input[type="submit"] {
     cursor: pointer;
     font-size: 1rem;
     width: 100%;
-    transition: background-color 0.3s;
+    transition: background-color 0.2s;
     margin-top: 10px;
 }
 
@@ -86,32 +86,95 @@ input[type="submit"]:disabled {
     cursor: not-allowed;
 }
 
-/* Progress bar container */
-#progress-container {
-    width: 100%;
-    background-color: #e9ecef;
-    border-radius: 25px;
-    overflow: hidden;
-    height: 20px;
-    margin-top: 20px;
-    display: none;
+/* Dominoes Animation */
+/* 
+Credit: This animation is created by @jh3y
+Check out his Github here: https://github.com/jh3y 
+*/
+
+@-webkit-keyframes dominoes {
+  0% {
+    opacity: 0; }
+  20% {
+    opacity: 1;
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg); }
+  60% {
+    -webkit-transform: rotate(calc(var(--rotation) * 1deg));
+            transform: rotate(calc(var(--rotation) * 1deg)); }
+  90%,
+  100% {
+    opacity: 0;
+    -webkit-transform: rotate(calc(var(--rotation) * 1deg));
+            transform: rotate(calc(var(--rotation) * 1deg)); } }
+@keyframes dominoes {
+  0% {
+    opacity: 0; }
+  20% {
+    opacity: 1;
+    transform: rotate(0deg); }
+  60% {
+    transform: rotate(calc(var(--rotation) * 1deg)); }
+  90%,
+  100% {
+    opacity: 0;
+    transform: rotate(calc(var(--rotation) * 1deg)); } 
 }
 
-/* Progress bar */
-#progress-bar {
-    height: 100%;
-    width: 0;
+.dominoes {
+    display: grid;
+    grid-gap: 20px;
+    grid-template-columns: repeat(13, 10px);
+    height: 40px;
+}
+.dominoes div {
+    --rotation: 68;
     background-color: #007bff;
-    transition: width 0.4s ease;
+    opacity: 0;
+    transform-origin: bottom right;
+    width: 10px;
+    height: 40px;
+}
+.dominoes div:nth-child(1) {
+    animation: dominoes 2s 0.2s infinite ease;
+}
+.dominoes div:nth-child(2) {
+    animation: dominoes 2s 0.4s infinite ease;
+}
+.dominoes div:nth-child(3) {
+    animation: dominoes 2s 0.6s infinite ease;
+}
+.dominoes div:nth-child(4) {
+    animation: dominoes 2s 0.8s infinite ease;
+}
+.dominoes div:nth-child(5) {
+    animation: dominoes 2s 1s infinite ease;
+}
+.dominoes div:nth-child(6) {
+    animation: dominoes 2s 1.2s infinite ease;
+}
+.dominoes div:nth-child(7) {
+    animation: dominoes 2s 1.4s infinite ease;
+}
+.dominoes div:nth-child(8) {
+    animation: dominoes 2s 1.6s infinite ease;
+}
+.dominoes div:nth-child(9) {
+    animation: dominoes 2s 1.8s infinite ease;
+}
+.dominoes div:nth-child(10) {
+    animation: dominoes 2s 2s infinite ease;
+}
+.dominoes div:nth-child(11) {
+    animation: dominoes 2s 2.2s infinite ease;
+}
+.dominoes div:nth-child(12) {
+    animation: dominoes 2s 2.4s infinite ease;
+}
+.dominoes div:nth-child(13) {
+    animation: dominoes 2s 2.6s infinite ease;
 }
 
-/* Status message */
-#status-message {
-    margin-top: 15px;
-    font-size: 1rem;
-    color: #6c757d;
-    line-height: 1.5;
-}
 
 /* Bigger Download Button */
 .big-download-button {
@@ -123,7 +186,7 @@ input[type="submit"]:disabled {
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.2s ease;
     text-align: center;
     margin-top: 20px;
 }
@@ -134,21 +197,4 @@ input[type="submit"]:disabled {
 
 .big-download-button:active {
     background-color: #1e7e34;
-}
-
-/* Mobile responsiveness */
-@media (max-width: 600px) {
-    h1 {
-        font-size: 1.75rem;
-    }
-
-    .container {
-        padding: 30px;
-    }
-
-    label, input[type="submit"], .big-download-button {
-        width: 100%;
-        display: block;
-        margin-bottom: 10px;
-    }
 }

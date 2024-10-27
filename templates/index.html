@@ -13,17 +13,18 @@
             <label for="file">Choose an audio file</label>
             <input type="file" name="file" id="file" accept="audio/*">
             <input type="submit" value="Upload and Transcribe" disabled id="submit-button">
-            <p>Please upload audio files in .mp3, .wav format.</p>
+            <p>Accepted format: mp3, wav, mp4</p>
 
-            <!-- Progress bar -->
-            <div id="progress-container">
-                <div id="progress-bar"></div>
+            <!-- Dominoes Animation Loading -->
+            <div id="progress-container" class="dominoes" style="display: none;">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
             </div>
-
-            <!-- Transcription status message -->
-            <p id="status-message" style="display: none;">
-                We are trying hard transcribing your audio.<br>The longer the audio, the more time it will take.
-            </p>
 
             <!-- Download button (hidden initially) -->
             <button id="download-button" class="big-download-button" style="display: none;">Download Transcription</button>
@@ -33,35 +34,20 @@
     <script>
         const fileInput = document.getElementById('file');
         const submitButton = document.getElementById('submit-button');
-        const progressBar = document.getElementById('progress-bar');
-        const statusMessage = document.getElementById('status-message');
         const progressContainer = document.getElementById('progress-container');
         const downloadButton = document.getElementById('download-button');
 
-        let progress = 0;
-        let maxProgress = 99;  // This is the max before it waits for the backend
-        let progressInterval;
-
         // Enable the submit button when a file is selected
         fileInput.addEventListener('change', function() {
-            if (fileInput.files.length > 0) {
-                submitButton.disabled = false;
-            } else {
-                submitButton.disabled = true;
-            }
+            submitButton.disabled = fileInput.files.length === 0;
         });
 
-        // Simulate progress bar and status updates when the form is submitted
+        // Display dominoes animation on form submission
         document.getElementById('uploadForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            submitButton.disabled = true; // Disable submit button
-            progressContainer.style.display = 'block'; // Show progress bar
-            statusMessage.style.display = 'block'; // Show the transcription status message
+            submitButton.disabled = true;
+            progressContainer.style.display = 'grid'; // Show dominoes animation
 
-            // Start progress bar simulation immediately
-            simulateProgress();
-
-            // Start real form submission and fetch the size of the file
             const formData = new FormData(this);
 
             fetch('/upload', {
@@ -70,80 +56,40 @@
             })
             .then(response => response.json())
             .then(data => {
-                clearInterval(progressInterval); // Stop progress simulation
-
-                // Complete the progress bar and show the download button
-                finishProgress();
+                // Hide dominoes animation and show download button
+                progressContainer.style.display = 'none';
+                downloadButton.style.display = 'block';
             })
             .catch(error => {
-                statusMessage.textContent = 'Error transcribing your file';
-                statusMessage.style.color = 'red';
+                // Show error message inside progress container if upload fails
+                progressContainer.innerHTML = '<p style="color: red;">Error transcribing your file</p>';
             });
         });
 
-        // Simulate slow progress based on file size
-        function simulateProgress() {
-            const progressSpeed = 260; // Slower speed by 30%
-
-            progressInterval = setInterval(() => {
-                if (progress < maxProgress) {
-                    progress += 1;
-                    progressBar.style.width = progress + '%';
-                }
-            }, progressSpeed);
-        }
-
-        // Complete the progress bar and display the download button
-        function finishProgress() {
-            progressBar.style.width = '100%';
-
-            setTimeout(() => {
-                // Hide the status message
-                statusMessage.style.display = 'none';
-
-                // Reset the progress bar to 0%
-                progressBar.style.width = '0%';
-
-                // Show the download button
-                downloadButton.style.display = 'block';
-                
-                // Set up click listener to download file and reload the page after download
-                downloadButton.addEventListener('click', function() {
-                    // Hide the status message when the download button is clicked
-                    statusMessage.style.display = 'none';
-
-                    fetch('/download')
-                        .then(response => {
-                            if (response.ok) {
-                                return response.blob();
-                            } else {
-                                throw new Error('Error downloading transcription file');
-                            }
-                        })
-                        .then(blob => {
-                            const downloadUrl = window.URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = downloadUrl;
-                            a.download = 'transcribe.txt';
-                            document.body.appendChild(a);
-                            a.click();
-                            a.remove();
-                            
-                            // Remove the download button after downloading
-                            downloadButton.style.display = 'none';
-
-                            // Reload the page after a short delay (allow time for download to start)
-                            setTimeout(() => {
-                                location.reload();
-                            }, 1000); // 1-second delay before reloading
-                        })
-                        .catch(error => {
-                            statusMessage.textContent = 'Error downloading file';
-                            statusMessage.style.color = 'red';
-                        });
+        downloadButton.addEventListener('click', function() {
+            fetch('/download')
+                .then(response => {
+                    if (response.ok) {
+                        return response.blob();
+                    } else {
+                        throw new Error('Error downloading transcription file');
+                    }
+                })
+                .then(blob => {
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.download = 'transcribe.txt';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    downloadButton.style.display = 'none';
+                    setTimeout(() => location.reload(), 1000);
+                })
+                .catch(error => {
+                    progressContainer.innerHTML = '<p style="color: red;">Error downloading file</p>';
                 });
-            }, 1000); // Wait 1 second before resetting progress bar and showing download button
-        }
+        });
     </script>
 </body>
 </html>
