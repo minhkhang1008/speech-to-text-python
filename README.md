@@ -1,9 +1,9 @@
 
 # Free Speech to Text using Python
 
-I am trying to publish it online somewhere [I haven't published it anywhere]
+I cannot host a server on my own so I will not publish it anywhere
 
-You can clone or download this repository and run it locally now! (Download all files)
+You can clone or download this repository and run it locally (Download all files)
 
 ## Installation
 - You will need Python to run
