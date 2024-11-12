@@ -5,7 +5,7 @@ from pydub import AudioSegment
 import threading
 import time
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', template_folder='templates')
 
 # Ensure 'uploads' directory exists
 UPLOAD_FOLDER = 'uploads'
@@ -128,4 +128,4 @@ def download_transcription():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
